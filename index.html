@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Grossman Cousins Club - Connect with family, share updates, and schedule meetups">
+    <title>Grossman Cousins Club</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Calendar Library -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+    <!-- Custom Script - Loaded last -->
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <img src="cousins-logo.png" alt="Grossman Cousins Club Logo" id="site-icon" onerror="this.src='https://via.placeholder.com/60x60';this.onerror='';">
+        <h1>Welcome to the Grossman Cousins Club!</h1>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="index.html" aria-current="page">Home</a></li>
+            <li><a href="profiles.html">Profiles</a></li>
+            <li><a href="calendar.html">Cousins Calendar</a></li>
+            <li><a href="chat.html">Chat</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Profile Creation Form -->
+        <section id="profile-form">
+            <h2>Create Your Profile</h2>
+            <form id="cousin-form">
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+
+                <label for="location">Where do you live?</label>
+                <input type="text" id="location" name="location" required>
+
+                <label for="meeting">Next time you'll see a cousin:</label>
+                <input type="date" id="meeting" name="meeting" required>
+
+                <label for="bio">Tell us about yourself:</label>
+                <textarea id="bio" name="bio" rows="4"></textarea>
+
+                <button type="submit">Submit Profile</button>
+            </form>
+        </section>
+
+        <!-- Map for Cousin Locations -->
+        <section id="map-container">
+            <h2>Where Cousins Live</h2>
+            <div id="map" style="height: 400px; width: 100%; background-color: #eee;">
+                <p style="text-align: center; padding-top: 180px;">Map loading...</p>
+            </div>
+            <p class="hint">Zoom in to see where your cousins are located!</p>
+        </section>
+
+        <!-- Calendar for Cousin Meetups -->
+        <section id="calendar-container">
+            <h2>Upcoming Cousin Meetups</h2>
+            <div id="calendar"></div>
+            <p class="hint">Click on an event for details</p>
+        </section>
+
+        <!-- Admin Login (Compact Section) - Moved below main content to avoid overlap -->
+        <section id="admin-login">
+            <p>Admin Login:</p>
+            <input type="password" id="admin-password" placeholder="Enter Password">
+            <button id="admin-login-btn" aria-label="Log in as administrator">🔒</button>
+        </section>
+
+        <!-- Admin Panel (Hidden until login) -->
+        <section id="admin-panel" style="display: none;">
+            <h2>Admin Dashboard</h2>
+            <div class="admin-controls">
+                <button id="clear-chat-btn">Clear Chat Messages</button>
+                <button id="manage-profiles-btn">Manage Cousin Profiles</button>
+                <button id="export-data-btn">Export Data</button>
+                <button id="logout-btn">Log Out</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Grossman Cousins Club</p>
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="faq.html">FAQ</a>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay (Hidden by default) -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+</body>
+</html>
