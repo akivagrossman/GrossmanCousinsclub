@@ -16,25 +16,21 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <!-- Header -->
     <header>
-        <img src="cousins-logo.png" alt="Grossman Cousins Club Logo" id="site-icon" onerror="this.src='https://via.placeholder.com/60x60';this.onerror='';">
-        <h1>Welcome to the Grossman Cousins Club!</h1>
+        <img src="cousins-logo.png" alt="Grossman Cousins Club Logo" id="site-icon" onerror="this.src='https://via.placeholder.com/60x60';this.onerror=null;">
+        <h1>Grossman Cousins Club</h1>
     </header>
 
-    <!-- Navigation -->
     <nav>
         <ul>
             <li><a href="index.html" aria-current="page">Home</a></li>
             <li><a href="profiles.html">Profiles</a></li>
-            <li><a href="calendar.html">Cousins Calendar</a></li>
+            <li><a href="calendar.html">Calendar</a></li>
             <li><a href="chat.html">Chat</a></li>
         </ul>
     </nav>
 
-    <!-- Main Content -->
     <main>
-        <!-- Profile Creation Form -->
         <section id="profile-form">
             <h2>Create Your Profile</h2>
             <form id="cousin-form">
@@ -57,52 +53,43 @@
             </form>
         </section>
 
-        <!-- Map for Cousin Locations -->
         <section id="map-container">
-            <h2>Where Cousins Live</h2>
-            <div id="map" style="height: 400px; width: 100%; background-color: #eee;">
-                <p style="text-align: center; padding-top: 180px;">Map loading...</p>
-            </div>
-            <p class="hint">Zoom in to see where your cousins are located!</p>
+            <h2>Select Your Home on the Map</h2>
+            <div id="map" style="height: 400px; width: 100%; background-color: #eee;"></div>
+            <p class="hint">Click to set your home location</p>
         </section>
 
-        <!-- Calendar for Cousin Meetups -->
         <section id="calendar-container">
             <h2>Upcoming Cousin Meetups</h2>
             <div id="calendar"></div>
-            <p class="hint">Click on an event for details</p>
         </section>
 
-        <!-- Admin Login (Compact Section) - Moved below main content to avoid overlap -->
-        <section id="admin-login">
-            <p>Admin Login:</p>
-            <input type="password" id="admin-password" placeholder="Enter Password">
-            <button id="admin-login-btn" aria-label="Log in as administrator">🔒</button>
-        </section>
+        <section id="admin-section">
+            <div id="admin-login">
+                <h3>Admin Login</h3>
+                <input type="password" id="admin-password" placeholder="Enter Password">
+                <button id="admin-login-btn">Login</button>
+            </div>
 
-        <!-- Admin Panel (Hidden until login) -->
-        <section id="admin-panel" style="display: none;">
-            <h2>Admin Dashboard</h2>
-            <div class="admin-controls">
-                <button id="clear-chat-btn">Clear Chat Messages</button>
-                <button id="manage-profiles-btn">Manage Cousin Profiles</button>
+            <div id="admin-panel" style="display: none;">
+                <h3>Admin Dashboard</h3>
+                <button id="clear-chat-btn">Clear Chat</button>
+                <button id="manage-profiles-btn">Manage Profiles</button>
                 <button id="export-data-btn">Export Data</button>
-                <button id="logout-btn">Log Out</button>
+                <button id="logout-btn">Logout</button>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
     <footer>
         <p>© 2025 Grossman Cousins Club</p>
         <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="contact.html">Contact Us</a>
-            <a href="faq.html">FAQ</a>
+            <a href="#">Privacy</a>
+            <a href="#">Contact</a>
+            <a href="#">FAQ</a>
         </div>
     </footer>
 
-    <!-- Loading Overlay (Hidden by default) -->
     <div id="loading-overlay" style="display: none;">
         <div class="spinner"></div>
         <p>Loading...</p>

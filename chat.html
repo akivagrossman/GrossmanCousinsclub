@@ -16,9 +16,25 @@
         <section id="chat-container">
             <h2>Cousins Club Chat</h2>
             <div id="chat-box"></div>
+            <input type="text" id="chat-username" placeholder="Your Name">
             <input type="text" id="message-input" placeholder="Type a message...">
             <button onclick="sendMessage()">Send</button>
+        </section>
+
+        <section id="admin-section">
+            <div id="admin-login">
+                <h3>Admin Login</h3>
+                <input type="password" id="admin-password" placeholder="Enter Password">
+                <button id="admin-login-btn">Login</button>
+            </div>
+
+            <div id="admin-panel" style="display: none;">
+                <h3>Admin Dashboard</h3>
+                <button id="clear-chat-btn">Clear Chat</button>
+                <button id="logout-btn">Logout</button>
+            </div>
         </section>
     </main>
 </body>
 </html>
+

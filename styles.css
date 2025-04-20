@@ -1,186 +1,205 @@
-/* Global Styles */
-body {
-    font-family: "Arial", sans-serif;
-    background-color: #121212;
-    color: white;
-    margin: 0;
-    padding: 0;
+// === Firebase Initialization ===
+const firebaseConfig = {
+    apiKey: "AIzaSyABC123_REPLACE_WITH_REAL_KEY",
+    authDomain: "grossmancousinsclub.firebaseapp.com",
+    databaseURL: "https://grossmancousinsclub-default-rtdb.firebaseio.com/",
+    projectId: "grossmancousinsclub",
+};
+
+window.initMap = initMapWrapper; // Ensure Google Maps can call this globally
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        initializeApp();
+    } else {
+        console.error("Firebase SDK not loaded!");
+        showError("Could not connect to database. Please check your internet connection.");
+    }
+});
+
+function initializeApp() {
+    const db = firebase.database();
+    setupChatSystem(db.ref("chat"));
+    setupProfileForm(db.ref("profiles"));
+    setupAdminLogin();
+
+    if (document.getElementById("map")) loadGoogleMapsScript();
+    if (document.getElementById("calendar")) initializeCalendar();
 }
 
-/* Header */
-header {
-    background-color: #1C1C1C;
-    padding: 15px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+// === CHAT ===
+function setupChatSystem(chatRef) {
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("message-input");
+    const usernameInput = document.getElementById("chat-username");
 
-/* Site Icon */
-#site-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    margin-right: 15px;
-}
+    if (!chatBox || !input || !usernameInput) return;
 
-/* Navigation Bar */
-nav ul {
-    list-style-type: none;
-    padding: 0;
-    text-align: center;
-}
-
-nav ul li {
-    display: inline;
-    margin: 0 15px;
-}
-
-nav ul li a {
-    color: #00A884; /* WhatsApp-inspired green */
-    text-decoration: none;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* Profile Form */
-form {
-    background-color: #1E1E1E;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 400px;
-    margin: 40px auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-label {
-    display: block;
-    margin-top: 15px;
-    font-weight: bold;
-    color: #00A884;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    background-color: #292929;
-    color: white;
-    margin-top: 5px;
-}
-
-button {
-    margin-top: 15px;
-    background-color: #00A884;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-    transition: 0.3s;
-}
-
-button:hover {
-    background-color: #008f6b;
-    transform: scale(1.05);
-}
-
-/* Admin Login - MODIFIED */
-#admin-login {
-    position: absolute;
-    top: 60px; /* Modified from 10px to move it lower */
-    right: 10px;
-    background-color: #1E1E1E;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 14px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    z-index: 100; /* Added to ensure it appears above other elements */
-}
-
-/* Map & Calendar Sections */
-#map-container, #calendar-container {
-    background-color: #1E1E1E;
-    padding: 20px;
-    border-radius: 12px;
-    margin: 40px auto;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-/* Chat System */
-#chat-container {
-    background-color: #1E1E1E;
-    padding: 15px;
-    border-radius: 12px;
-    max-width: 600px;
-    margin: 40px auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-/* Chat Messages */
-.chat-message {
-    background-color: #3A3A3A;
-    padding: 10px;
-    border-radius: 18px;
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    max-width: 70%;
-    word-wrap: break-word;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.sent-message {
-    background-color: #00A884;
-    color: white;
-    align-self: flex-end;
-}
-
-/* Smooth Scrollbar */
-#chat-box {
-    height: 300px;
-    overflow-y: scroll;
-    background-color: #292929;
-    padding: 10px;
-    border-radius: 10px;
-    scrollbar-width: thin;
-    scrollbar-color: #00A884 #1E1E1E;
-}
-
-/* Mobile-Friendly Adjustments */
-@media screen and (max-width: 600px) {
-    #chat-container, #map-container, #calendar-container {
-        max-width: 95%;
+    if (localStorage.getItem("username")) {
+        usernameInput.value = localStorage.getItem("username");
     }
 
-    .chat-message {
-        max-width: 85%;
-    }
-    
-    /* Adjust admin login position for mobile */
-    #admin-login {
-        top: 80px; /* Move even lower on mobile screens */
-    }
+    input.addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage(chatRef);
+        }
+    });
+
+    chatRef.on("child_added", snapshot => {
+        const msg = snapshot.val();
+        const id = snapshot.key;
+        displayMessage(msg, id, chatBox);
+    });
+
+    chatRef.on("child_removed", snapshot => {
+        const id = snapshot.key;
+        const el = document.querySelector(`[data-message-id="${id}"]`);
+        if (el) el.remove();
+    });
 }
 
-/* Fade-In Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+function sendMessage(chatRef) {
+    const input = document.getElementById("message-input");
+    const usernameInput = document.getElementById("chat-username");
+    const text = input.value.trim();
+    const sender = usernameInput.value.trim();
+    if (!text || !sender) return alert("Add a name and message!");
+
+    localStorage.setItem("username", sender);
+    chatRef.push({ text, sender, timestamp: Date.now() });
+    input.value = "";
 }
 
+function displayMessage(msg, id, chatBox) {
+    const el = document.createElement("div");
+    el.classList.add("chat-message");
+    el.setAttribute("data-message-id", id);
 
+    const currentUser = localStorage.getItem("username") || "";
+    if (msg.sender === currentUser) el.classList.add("sent-message");
+
+    el.innerHTML = `
+        <strong>${escapeHTML(msg.sender)}</strong>: 
+        <span>${escapeHTML(msg.text)}</span>
+        ${msg.sender === currentUser || currentUser === "admin" ? `<button onclick="deleteMessage('${id}')">❌</button>` : ""}
+    `;
+
+    chatBox.appendChild(el);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function deleteMessage(id) {
+    firebase.database().ref("chat").child(id).remove();
+}
+
+// === PROFILE FORM ===
+function setupProfileForm(ref) {
+    const form = document.getElementById("cousin-form");
+    if (!form) return;
+
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+        const profile = {
+            name: form.name.value.trim(),
+            dob: form.dob.value,
+            location: form.location.value.trim(),
+            meeting: form.meeting.value,
+            bio: form.bio.value.trim(),
+            createdAt: Date.now()
+        };
+        if (!profile.name || !profile.dob || !profile.location || !profile.meeting) {
+            return alert("Fill all required fields.");
+        }
+        toggleLoadingOverlay(true);
+        ref.push(profile).then(() => {
+            alert("Profile submitted!");
+            form.reset();
+            toggleLoadingOverlay(false);
+        }).catch(err => {
+            console.error(err);
+            alert("Failed to submit profile.");
+            toggleLoadingOverlay(false);
+        });
+    });
+}
+
+// === ADMIN ===
+function setupAdminLogin() {
+    const btn = document.getElementById("admin-login-btn");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+        const pass = document.getElementById("admin-password").value;
+        if (pass === "Akivagro8") {
+            document.getElementById("admin-panel").style.display = "block";
+            localStorage.setItem("username", "admin");
+        } else alert("Wrong password.");
+    });
+    const logout = document.getElementById("logout-btn");
+    if (logout) logout.addEventListener("click", () => {
+        document.getElementById("admin-panel").style.display = "none";
+        localStorage.removeItem("username");
+    });
+}
+
+// === GOOGLE MAPS ===
+function loadGoogleMapsScript() {
+    const tag = document.createElement("script");
+    tag.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyABC123_REPLACE_WITH_REAL_KEY&callback=initMap`;
+    tag.async = true;
+    tag.defer = true;
+    document.body.appendChild(tag);
+}
+
+function initMapWrapper() {
+    if (typeof initMap === 'function') initMap();
+}
+
+function initMap() {
+    const mapElement = document.getElementById("map");
+    const map = new google.maps.Map(mapElement, {
+        center: { lat: 31.7683, lng: 35.2137 },
+        zoom: 8
+    });
+
+    const marker = new google.maps.Marker({ map });
+
+    map.addListener("click", e => {
+        const latLng = e.latLng;
+        marker.setPosition(latLng);
+        const input = document.getElementById("location");
+        if (input) input.value = `${latLng.lat().toFixed(5)}, ${latLng.lng().toFixed(5)}`;
+    });
+}
+
+// === CALENDAR ===
+function initializeCalendar() {
+    const el = document.getElementById("calendar");
+    const calendar = new FullCalendar.Calendar(el, {
+        initialView: "dayGridMonth",
+        events: [
+            { title: "Akiva's Birthday", start: "2025-05-15", color: '#00A884' },
+            { title: "Family Meetup", start: "2025-06-10", color: '#00A884' },
+            { title: "Sarah's Wedding", start: "2025-07-22", end: "2025-07-23", color: '#8f44ad' },
+            { title: "David's Bar Mitzvah", start: "2025-08-05", color: '#e67e22' }
+        ],
+        eventClick: info => alert(`Event: ${info.event.title}\nDate: ${info.event.start.toDateString()}`)
+    });
+    calendar.render();
+}
+
+function toggleLoadingOverlay(show) {
+    const overlay = document.getElementById("loading-overlay");
+    if (overlay) overlay.style.display = show ? "flex" : "none";
+}
+
+function showError(msg) {
+    alert(msg);
+}
+
+function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
